@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "ThelaWala API — Iteration 2",
-    "description": "Iteration 2 adds: a 'city' field on onboarding, separated stats (vendor_stats) and comments (vendor_comments) tables, and a public detail endpoint for the clickable profile popup.\n\nChanges vs Iteration 1:\n- Onboard body now includes \"city\".\n- New request: 'Get vendor detail (public)' -> GET /api/vendors/{id}/detail (returns profile + likes + visitCount + comments).\n- visitCount is no longer part of the vendor list/get responses; it now comes from the detail endpoint (backed by vendor_stats).\n\nThe onboard request auto-captures the new vendor id into {{vendorId}}, so the other requests run without copy-pasting ids. Live links are in {{initialLink}} / {{updateLink}}.",
+    "description": "Iteration 2 adds: a 'city' field on onboarding, separated stats (vendor_stats) and comments (vendor_comments) tables, and a public detail endpoint for the clickable profile popup.\n\nChanges vs Iteration 1:\n- Onboard body now includes \"city\".\n- New request: 'Get vendor detail (public)' -> GET /api/vendors/{id}/detail (returns profile + likes + visitCount + comments).\n- visitCount is no longer part of the vendor list/get responses; it now comes from the detail endpoint (backed by vendor_stats).\n- New request: 'Patch vendor metadata (admin)' -> PATCH /api/vendors/{id} (partial update of name/phone/city/photoUrl).\n- New request: 'Adjust likes (admin)' -> POST /api/vendors/{id}/likes (delta may be negative; returns new count).\n- New request: 'Add comment (public)' -> POST /api/vendors/{id}/comments (stored in vendor_comments).\n\nThe onboard request auto-captures the new vendor id into {{vendorId}}, so the other requests run without copy-pasting ids. Live links are in {{initialLink}} / {{updateLink}}.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -57,6 +57,32 @@
               "raw": "{\n  \"trackerLink\": \"{{updateLink}}\"\n}"
             },
             "description": "Replace the vendor's live link. Setting a link also brings them ONLINE."
+          }
+        },
+        {
+          "name": "Patch vendor metadata (admin)",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ramu Chaat Bhandar (Updated)\",\n  \"phone\": \"+91 98765 00000\",\n  \"city\": \"Lucknow\",\n  \"photoUrl\": \"https://placehold.co/160x160?text=Ramu2\"\n}"
+            },
+            "description": "Partially update vendor metadata. All fields optional — send only the ones you want to change (name, phone, city, photoUrl)."
+          }
+        },
+        {
+          "name": "Adjust likes (admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/likes", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}", "likes"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"delta\": 5\n}"
+            },
+            "description": "Add likes to a vendor (delta may be negative to subtract). Updates vendor_stats and returns the new count as { \"likes\": <n> }."
           }
         },
         {
@@ -129,6 +155,19 @@
             "header": [],
             "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/detail", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}", "detail"] },
             "description": "Full detail for the profile popup: name, phone, city, likes, visitCount (from vendor_stats), and the read-only comments list (from vendor_comments)."
+          }
+        },
+        {
+          "name": "Add comment (public)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/comments", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}", "comments"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"author\": \"Anjali\",\n  \"text\": \"Best chaat in town!\"\n}"
+            },
+            "description": "Add a comment to a vendor (stored in vendor_comments). Returns 201 with the created comment. Shows up in the public detail endpoint."
           }
         },
         {

@@ -1,6 +1,8 @@
 package com.thelawala.service;
 
+import com.thelawala.dto.CommentRequest;
 import com.thelawala.dto.VendorDetailResponse;
+import com.thelawala.dto.VendorPatchRequest;
 import com.thelawala.dto.VendorRequest;
 import com.thelawala.exception.ResourceNotFoundException;
 import com.thelawala.model.Vendor;
@@ -41,7 +43,10 @@ public class VendorService {
         v.setName(req.getName().trim());
         v.setPhone(req.getPhone().trim());
         if (hasText(req.getCity())) v.setCity(req.getCity().trim());
-        v.setPhotoUrl(hasText(req.getPhotoUrl()) ? req.getPhotoUrl().trim() : DEFAULT_PHOTO);
+        // No profile link? Fall back to a placeholder showing the name's initials.
+        v.setPhotoUrl(hasText(req.getPhotoUrl())
+                ? req.getPhotoUrl().trim()
+                : initialsPhoto(v.getName()));
         if (hasText(req.getTrackerLink())) {
             v.setTrackerLink(req.getTrackerLink().trim());
             v.setStatus(VendorStatus.ONLINE);
@@ -119,6 +124,48 @@ public class VendorService {
     }
 
     /**
+     * Partial update of vendor metadata. Only applies fields that are present
+     * (non-null). Never touches stats (likes/visits) or the tracker link.
+     */
+    @Transactional
+    public Vendor patch(Long id, VendorPatchRequest req) {
+        Vendor v = get(id);
+        if (hasText(req.getName())) v.setName(req.getName().trim());
+        if (hasText(req.getPhone())) v.setPhone(req.getPhone().trim());
+        if (req.getCity() != null) v.setCity(req.getCity().isBlank() ? null : req.getCity().trim());
+        if (req.getPhotoUrl() != null) {
+            v.setPhotoUrl(req.getPhotoUrl().isBlank() ? initialsPhoto(v.getName()) : req.getPhotoUrl().trim());
+        }
+        return repository.save(v);
+    }
+
+    /** Adds a visitor comment to a vendor. */
+    @Transactional
+    public VendorComment addComment(Long id, CommentRequest req) {
+        get(id); // 404 if the vendor doesn't exist
+        VendorComment c = new VendorComment();
+        c.setVendorId(id);
+        c.setAuthor(req.getAuthor().trim());
+        c.setText(req.getText().trim());
+        return commentRepository.save(c);
+    }
+
+    /**
+     * Admin: adds {@code delta} (which may be negative) to a vendor's like count.
+     * Starts from 0 if no stats row exists yet, and never drops below 0.
+     * Returns the updated like count.
+     */
+    @Transactional
+    public long adjustLikes(Long id, int delta) {
+        get(id); // 404 if the vendor doesn't exist
+        VendorStats stats = statsRepository.findById(id).orElseGet(() -> new VendorStats(id));
+        long updated = Math.max(0, stats.getLikesCount() + delta);
+        stats.setLikesCount(updated);
+        statsRepository.save(stats);
+        return updated;
+    }
+
+    /**
      * Records a visit and returns the tracker link to redirect to.
      * Throws if the vendor has no link or is offline.
      */
@@ -137,5 +184,22 @@ public class VendorService {
 
     private static boolean hasText(String s) {
         return s != null && !s.isBlank();
+    }
+
+    /**
+     * Builds a placeholder photo showing the capitalized first letter of each
+     * word of the name, e.g. "Ram chaat bhandhar" -> "RCB". Falls back to the
+     * generic placeholder if no usable letters are found.
+     */
+    private static String initialsPhoto(String name) {
+        StringBuilder initials = new StringBuilder();
+        if (name != null) {
+            for (String word : name.trim().split("\\s+")) {
+                if (!word.isEmpty()) initials.append(Character.toUpperCase(word.charAt(0)));
+            }
+        }
+        return initials.length() == 0
+                ? DEFAULT_PHOTO
+                : "https://placehold.co/160x160?text=" + initials;
     }
 }

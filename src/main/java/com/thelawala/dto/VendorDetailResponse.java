@@ -55,7 +55,7 @@ public class VendorDetailResponse {
         private String text;
         private Instant createdAt;
 
-        static CommentView from(VendorComment c) {
+        public static CommentView from(VendorComment c) {
             CommentView v = new CommentView();
             v.author = c.getAuthor();
             v.text = c.getText();

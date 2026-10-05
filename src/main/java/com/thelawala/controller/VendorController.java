@@ -1,10 +1,14 @@
 package com.thelawala.controller;
 
+import com.thelawala.dto.CommentRequest;
+import com.thelawala.dto.LikeAdjustRequest;
 import com.thelawala.dto.LinkUpdateRequest;
 import com.thelawala.dto.VendorDetailResponse;
+import com.thelawala.dto.VendorPatchRequest;
 import com.thelawala.dto.VendorRequest;
 import com.thelawala.dto.VendorResponse;
 import com.thelawala.model.Vendor;
+import com.thelawala.model.VendorComment;
 import com.thelawala.service.VendorService;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
@@ -12,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/vendors")
@@ -29,6 +34,29 @@ public class VendorController {
     public ResponseEntity<VendorResponse> onboard(@Valid @RequestBody VendorRequest req) {
         Vendor v = service.onboard(req);
         return ResponseEntity.status(HttpStatus.CREATED).body(VendorResponse.from(v));
+    }
+
+    /** Admin: partially update vendor metadata (name, phone, city, profile link). */
+    @PatchMapping("/{id}")
+    public VendorResponse patch(@PathVariable Long id,
+                                @Valid @RequestBody VendorPatchRequest req) {
+        return VendorResponse.from(service.patch(id, req));
+    }
+
+    /** Admin: add likes (delta may be negative) to a vendor; returns the new count. */
+    @PostMapping("/{id}/likes")
+    public Map<String, Long> adjustLikes(@PathVariable Long id,
+                                         @Valid @RequestBody LikeAdjustRequest req) {
+        return Map.of("likes", service.adjustLikes(id, req.getDelta()));
+    }
+
+    /** Public: add a comment to a vendor. */
+    @PostMapping("/{id}/comments")
+    public ResponseEntity<VendorDetailResponse.CommentView> addComment(
+            @PathVariable Long id, @Valid @RequestBody CommentRequest req) {
+        VendorComment c = service.addComment(id, req);
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(VendorDetailResponse.CommentView.from(c));
     }
 
     /** Admin: update a vendor's live tracker link. */
