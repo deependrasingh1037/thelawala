@@ -17,6 +17,9 @@ public class Vendor {
     @Column(nullable = false, length = 20)
     private String phone;
 
+    @Column(length = 80)
+    private String city;
+
     // Dummy/placeholder photo URL for now.
     @Column(name = "photo_url")
     private String photoUrl;
@@ -28,9 +31,6 @@ public class Vendor {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 10)
     private VendorStatus status = VendorStatus.OFFLINE;
-
-    @Column(name = "visit_count", nullable = false)
-    private long visitCount = 0;
 
     @Column(name = "created_at", nullable = false, updatable = false)
     private Instant createdAt;
@@ -60,6 +60,9 @@ public class Vendor {
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
 
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
+
     public String getPhotoUrl() { return photoUrl; }
     public void setPhotoUrl(String photoUrl) { this.photoUrl = photoUrl; }
 
@@ -68,9 +71,6 @@ public class Vendor {
 
     public VendorStatus getStatus() { return status; }
     public void setStatus(VendorStatus status) { this.status = status; }
-
-    public long getVisitCount() { return visitCount; }
-    public void setVisitCount(long visitCount) { this.visitCount = visitCount; }
 
     public Instant getCreatedAt() { return createdAt; }
     public Instant getUpdatedAt() { return updatedAt; }

@@ -12,9 +12,9 @@ public class VendorResponse {
     private Long id;
     private String name;
     private String phone;
+    private String city;
     private String photoUrl;
     private String status;
-    private long visitCount;
     private boolean hasLink;
 
     public static VendorResponse from(Vendor v) {
@@ -22,9 +22,9 @@ public class VendorResponse {
         r.id = v.getId();
         r.name = v.getName();
         r.phone = v.getPhone();
+        r.city = v.getCity();
         r.photoUrl = v.getPhotoUrl();
         r.status = v.getStatus().name();
-        r.visitCount = v.getVisitCount();
         r.hasLink = v.getTrackerLink() != null && !v.getTrackerLink().isBlank();
         return r;
     }
@@ -32,8 +32,8 @@ public class VendorResponse {
     public Long getId() { return id; }
     public String getName() { return name; }
     public String getPhone() { return phone; }
+    public String getCity() { return city; }
     public String getPhotoUrl() { return photoUrl; }
     public String getStatus() { return status; }
-    public long getVisitCount() { return visitCount; }
     public boolean isHasLink() { return hasLink; }
 }

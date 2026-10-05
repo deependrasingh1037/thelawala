@@ -28,6 +28,28 @@
         <p>Made for the thelewale of India.</p>
     </footer>
 
+    <!-- Vendor detail popup (hidden until a card is clicked) -->
+    <div id="modal" class="modal-overlay" hidden>
+        <div class="modal-card" role="dialog" aria-modal="true">
+            <button id="modalClose" class="modal-close" aria-label="Close">&times;</button>
+            <img id="mPhoto" class="modal-photo" alt=""/>
+            <h3 id="mName" class="modal-name"></h3>
+            <div id="mStatus" class="badge"><span class="dot"></span> Online</div>
+
+            <dl class="detail-list">
+                <div class="detail-row"><dt>Phone</dt><dd id="mPhone"></dd></div>
+                <div class="detail-row"><dt>City</dt><dd id="mCity"></dd></div>
+                <div class="detail-row"><dt>Likes</dt><dd id="mLikes"></dd></div>
+                <div class="detail-row"><dt>Visits</dt><dd id="mVisits"></dd></div>
+            </dl>
+
+            <button id="mTrack" class="track-btn">📍 Track live location</button>
+
+            <h4 class="comments-title">Comments</h4>
+            <div id="mComments" class="comments"></div>
+        </div>
+    </div>
+
     <script src="/app.js"></script>
 </body>
 </html>

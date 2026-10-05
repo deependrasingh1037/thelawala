@@ -13,6 +13,9 @@ public class VendorRequest {
     @Pattern(regexp = "^[0-9+\\-\\s]{7,20}$", message = "phone must be a valid number")
     private String phone;
 
+    // Optional.
+    private String city;
+
     // Optional at onboarding; can be set later via the update-link API.
     private String trackerLink;
 
@@ -24,6 +27,9 @@ public class VendorRequest {
 
     public String getPhone() { return phone; }
     public void setPhone(String phone) { this.phone = phone; }
+
+    public String getCity() { return city; }
+    public void setCity(String city) { this.city = city; }
 
     public String getTrackerLink() { return trackerLink; }
     public void setTrackerLink(String trackerLink) { this.trackerLink = trackerLink; }

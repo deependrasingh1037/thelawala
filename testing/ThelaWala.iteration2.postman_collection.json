@@ -1,0 +1,146 @@
+{
+  "info": {
+    "name": "ThelaWala API — Iteration 2",
+    "description": "Iteration 2 adds: a 'city' field on onboarding, separated stats (vendor_stats) and comments (vendor_comments) tables, and a public detail endpoint for the clickable profile popup.\n\nChanges vs Iteration 1:\n- Onboard body now includes \"city\".\n- New request: 'Get vendor detail (public)' -> GET /api/vendors/{id}/detail (returns profile + likes + visitCount + comments).\n- visitCount is no longer part of the vendor list/get responses; it now comes from the detail endpoint (backed by vendor_stats).\n\nThe onboard request auto-captures the new vendor id into {{vendorId}}, so the other requests run without copy-pasting ids. Live links are in {{initialLink}} / {{updateLink}}.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080", "type": "string" },
+    { "key": "vendorId", "value": "1", "type": "string" },
+    { "key": "initialLink", "value": "https://maps.app.goo.gl/xPsLw8nPVgz2FMcbA", "type": "string" },
+    { "key": "updateLink", "value": "https://maps.app.goo.gl/TorGti67gnbLhD8t6", "type": "string" }
+  ],
+  "item": [
+    {
+      "name": "Admin – Lifecycle",
+      "description": "Create, relink, and change the status of a vendor.",
+      "item": [
+        {
+          "name": "Onboard vendor",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// Capture the new vendor id so the other requests can reuse it.",
+                  "if (pm.response.code === 201) {",
+                  "  const v = pm.response.json();",
+                  "  if (v && v.id != null) {",
+                  "    pm.collectionVariables.set('vendorId', String(v.id));",
+                  "    console.log('vendorId set to ' + v.id);",
+                  "  }",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendors", "host": ["{{baseUrl}}"], "path": ["api", "vendors"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Ramu Chaat Bhandar\",\n  \"phone\": \"+91 98765 43210\",\n  \"city\": \"Varanasi\",\n  \"photoUrl\": \"https://placehold.co/160x160?text=Ramu\",\n  \"trackerLink\": \"{{initialLink}}\"\n}"
+            },
+            "description": "Onboard a new vendor. Now accepts an optional \"city\". Goes ONLINE immediately because a tracker link is provided. The response id is saved into {{vendorId}}. A companion vendor_stats row (0 visits / 0 likes) is created automatically."
+          }
+        },
+        {
+          "name": "Update tracker link (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/link", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}", "link"] },
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"trackerLink\": \"{{updateLink}}\"\n}"
+            },
+            "description": "Replace the vendor's live link. Setting a link also brings them ONLINE."
+          }
+        },
+        {
+          "name": "Mark online (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/online", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}", "online"] },
+            "description": "Bring a vendor back ONLINE. Requires an existing tracker link, else returns 409 Conflict."
+          }
+        },
+        {
+          "name": "Mark offline (admin)",
+          "request": {
+            "method": "PUT",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/offline", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}", "offline"] }
+          }
+        },
+        {
+          "name": "Delete vendor (admin)",
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}"] },
+            "description": "Permanently delete a vendor, along with its vendor_stats and vendor_comments rows. Returns 204 No Content, or 404 if the id doesn't exist."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Admin – Read",
+      "description": "Read vendors regardless of status.",
+      "item": [
+        {
+          "name": "List all vendors (admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vendors", "host": ["{{baseUrl}}"], "path": ["api", "vendors"] }
+          }
+        },
+        {
+          "name": "Get one vendor (admin)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}"] },
+            "description": "Profile view. Now includes \"city\"; no longer includes visitCount (see the detail endpoint)."
+          }
+        }
+      ]
+    },
+    {
+      "name": "Public",
+      "description": "Endpoints the public website uses.",
+      "item": [
+        {
+          "name": "List online vendors (public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vendors/online", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "online"] }
+          }
+        },
+        {
+          "name": "Get vendor detail (public)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/detail", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}", "detail"] },
+            "description": "Full detail for the profile popup: name, phone, city, likes, visitCount (from vendor_stats), and the read-only comments list (from vendor_comments)."
+          }
+        },
+        {
+          "name": "Track vendor (counts visit + redirects)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": { "raw": "{{baseUrl}}/track/{{vendorId}}", "host": ["{{baseUrl}}"], "path": ["track", "{{vendorId}}"] },
+            "description": "Returns a 302 redirect to the vendor's live link and increments visit_count in vendor_stats. Disable 'Automatically follow redirects' in Postman settings to see the Location header."
+          }
+        }
+      ]
+    }
+  ]
+}

@@ -1,6 +1,7 @@
 package com.thelawala.controller;
 
 import com.thelawala.dto.LinkUpdateRequest;
+import com.thelawala.dto.VendorDetailResponse;
 import com.thelawala.dto.VendorRequest;
 import com.thelawala.dto.VendorResponse;
 import com.thelawala.model.Vendor;
@@ -72,5 +73,11 @@ public class VendorController {
     @GetMapping("/{id}")
     public VendorResponse one(@PathVariable Long id) {
         return VendorResponse.from(service.get(id));
+    }
+
+    /** Public: full detail for the popup card (profile + stats + comments). */
+    @GetMapping("/{id}/detail")
+    public VendorDetailResponse detail(@PathVariable Long id) {
+        return service.getDetail(id);
     }
 }
