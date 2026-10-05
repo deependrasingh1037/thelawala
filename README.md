@@ -43,16 +43,34 @@ Install MySQL and ensure it's running. The app auto-creates the `thelawala` data
 host: localhost   port: 3306   user: root   password: root
 ```
 
-Override with environment variables if yours differ:
+To use your own credentials, pick one of these (don't hardcode secrets in `application.properties` — it's committed):
+
+**Option A — env vars:**
 
 ```bash
 export DB_HOST=localhost DB_PORT=3306 DB_NAME=thelawala DB_USER=root DB_PASSWORD=yourpass
 ```
 
+**Option B — local profile:** put real secrets in `src/main/resources/application-local.properties` (gitignored, so safe), e.g.:
+
+```properties
+spring.datasource.username=root
+spring.datasource.password=yourpass
+```
+
+Spring only reads that file when the `local` profile is active (see run step below).
+
 ### 2. Run the app
 
 ```bash
 mvn spring-boot:run
+```
+
+If you used Option B, activate the `local` profile so your secrets file is loaded:
+
+```bash
+mvn spring-boot:run -Dspring-boot.run.profiles=local
+# or: export SPRING_PROFILES_ACTIVE=local
 ```
 
 (Requires Maven 3.6+ and JDK 17 installed.)
