@@ -123,6 +123,7 @@ footer { text-align: center; padding: 20px; color: var(--muted); font-size: 13px
     padding: 16px;
     z-index: 100;
 }
+.modal-overlay[hidden] { display: none; }
 .modal-card {
     background: var(--card);
     border-radius: 16px;
