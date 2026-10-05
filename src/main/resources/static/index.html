@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>ThelaWala — Vendors near you, live</title>
+    <link rel="stylesheet" href="/style.css"/>
+</head>
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <span class="logo">🛒</span>
+            <div>
+                <h1>ThelaWala</h1>
+                <p class="tagline">Apne shehar ke thele, ab live.</p>
+            </div>
+        </div>
+        <button id="refreshBtn" class="refresh">Refresh</button>
+    </header>
+
+    <main>
+        <h2 id="count">Online vendors</h2>
+        <section id="grid" class="grid"></section>
+        <p id="empty" class="empty" hidden>No vendors are online right now. Check back soon!</p>
+    </main>
+
+    <footer>
+        <p>Made for the thelewale of India.</p>
+    </footer>
+
+    <script src="/app.js"></script>
+</body>
+</html>

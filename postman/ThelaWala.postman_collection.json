@@ -1,0 +1,78 @@
+{
+  "info": {
+    "name": "ThelaWala API",
+    "description": "APIs for onboarding street-cart vendors, managing their live tracker links, and the public online-vendor feed.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "vendorId", "value": "1" }
+  ],
+  "item": [
+    {
+      "name": "Onboard vendor",
+      "request": {
+        "method": "POST",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/vendors", "host": ["{{baseUrl}}"], "path": ["api", "vendors"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"name\": \"Ramu Chaat Bhandar\",\n  \"phone\": \"+91 98765 43210\",\n  \"photoUrl\": \"https://placehold.co/160x160?text=Ramu\",\n  \"trackerLink\": \"https://maps.app.goo.gl/EXAMPLE-LIVE-LINK\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Update tracker link (admin)",
+      "request": {
+        "method": "PUT",
+        "header": [{ "key": "Content-Type", "value": "application/json" }],
+        "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/link", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}", "link"] },
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"trackerLink\": \"https://maps.app.goo.gl/NEW-LIVE-LINK\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Mark offline (admin)",
+      "request": {
+        "method": "PUT",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}/offline", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}", "offline"] }
+      }
+    },
+    {
+      "name": "List online vendors (public)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/vendors/online", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "online"] }
+      }
+    },
+    {
+      "name": "List all vendors (admin)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/vendors", "host": ["{{baseUrl}}"], "path": ["api", "vendors"] }
+      }
+    },
+    {
+      "name": "Get one vendor (admin)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/api/vendors/{{vendorId}}", "host": ["{{baseUrl}}"], "path": ["api", "vendors", "{{vendorId}}"] }
+      }
+    },
+    {
+      "name": "Track vendor (counts visit + redirects)",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": { "raw": "{{baseUrl}}/track/{{vendorId}}", "host": ["{{baseUrl}}"], "path": ["track", "{{vendorId}}"] },
+        "description": "Returns a 302 redirect to the vendor's live link. Disable 'Automatically follow redirects' in Postman settings to see the Location header."
+      }
+    }
+  ]
+}
