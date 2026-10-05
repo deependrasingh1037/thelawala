@@ -37,10 +37,23 @@ public class VendorController {
         return VendorResponse.from(service.updateLink(id, req.getTrackerLink()));
     }
 
+    /** Admin: mark a vendor online (requires an existing tracker link). */
+    @PutMapping("/{id}/online")
+    public VendorResponse markOnline(@PathVariable Long id) {
+        return VendorResponse.from(service.markOnline(id));
+    }
+
     /** Admin: mark a vendor offline. */
     @PutMapping("/{id}/offline")
     public VendorResponse markOffline(@PathVariable Long id) {
         return VendorResponse.from(service.markOffline(id));
+    }
+
+    /** Admin: delete a vendor permanently. */
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(@PathVariable Long id) {
+        service.delete(id);
+        return ResponseEntity.noContent().build();
     }
 
     /** Public: vendors currently online (shown on the website). */

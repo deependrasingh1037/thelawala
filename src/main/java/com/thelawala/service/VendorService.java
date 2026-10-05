@@ -48,12 +48,31 @@ public class VendorService {
         return repository.save(v);
     }
 
+    /** Admin marks a vendor ONLINE. Requires an existing tracker link. */
+    @Transactional
+    public Vendor markOnline(Long id) {
+        Vendor v = get(id);
+        if (!hasText(v.getTrackerLink())) {
+            throw new IllegalStateException(
+                    "Vendor has no tracker link; set a link before going online: " + id);
+        }
+        v.setStatus(VendorStatus.ONLINE);
+        return repository.save(v);
+    }
+
     /** Admin marks a vendor OFFLINE. */
     @Transactional
     public Vendor markOffline(Long id) {
         Vendor v = get(id);
         v.setStatus(VendorStatus.OFFLINE);
         return repository.save(v);
+    }
+
+    /** Admin deletes a vendor permanently. */
+    @Transactional
+    public void delete(Long id) {
+        Vendor v = get(id); // 404 if the vendor doesn't exist
+        repository.delete(v);
     }
 
     /** Vendors currently visible on the public site. */
